@@ -28,19 +28,26 @@ dt_s3<- filter(dt, cusip == stock3)
 #para ello se va a usar la fórmula (1+R_t)=(p_t+div_t)/p_t-1
 # en la base de datos ya tengo div_t y p_t, tengo que crear una columna con los p_t-1
 #------------------------------------------------------------------------------#
+#primero hacer los cálculos mensuales
 dt_s1$p_t_1<-dt_s1$prc
 dt_s1<-dt_s1 %>%
-  mutate(p_t_1 = ifelse(datevar>431,lag(prc, n = 1),prc)) %>%
-  mutate(r_bruto=(prc+divamt)/p_t_1)%>%
-  mutate(r_neto=r_bruto-1)
-tab_s1_3 <- dt_s1 %>%
+  mutate(p_t_1 = lag(prc, n = 1)) %>%
+  mutate(r_bruto=round((prc+divamt)/p_t_1,4)) %>%
+  mutate(r_neto=(r_bruto-1)*100)
+#AHORA anualizamos
+dt_s1_anual<-dt_s1 %>%
+  group_by(year) %>%
+  summarise(r_bruto_anual=round((prod(r_bruto)),4))%>%
+  mutate(r_neto_anual=(r_bruto_anual-1)*100)
+  
+tab_s1_3 <- dt_s1_anual %>%
   summarise(
-    Media = mean(r_neto),
-    Error_Estandar = sd(r_neto)/sqrt(n()),
-    Desviacion_Estandar = sd(r_neto),
-    Minimo = min(r_neto),
-    Maximo = max(r_neto),
-    Numero_Datos = n()
+    Media = round(mean(r_neto_anual, na.rm = TRUE),2),
+    Error_Estandar = round(sd(r_neto_anual, na.rm = TRUE)/sqrt(sum(!is.na(r_neto_anual))),2),
+    Desviacion_Estandar = round(sd(r_neto_anual, na.rm = TRUE),2),
+    Minimo = min(r_neto_anual, na.rm = TRUE),
+    Maximo = max(r_neto_anual, na.rm = TRUE),
+    Numero_Datos = sum(!is.na(r_neto_anual))
   )
 doc <- read_docx()#abriendo el doc
 doc <- body_add_par(doc, 
@@ -52,17 +59,22 @@ print(doc, target = "tabla_documento.docx")
 #------------------------------------------------------------------------------#
 dt_s2$p_t_1<-dt_s2$prc
 dt_s2<-dt_s2 %>%
-  mutate(p_t_1 = ifelse(datevar>431,lag(prc, n = 1),prc)) %>%
-  mutate(r_bruto=(prc+divamt)/p_t_1)%>%
-  mutate(r_neto=r_bruto-1)
-tab_s2_3 <- dt_s2 %>%
+  mutate(p_t_1 = lag(prc, n = 1)) %>%
+  mutate(r_bruto=round((prc+divamt)/p_t_1,4)) %>%
+  mutate(r_neto=(r_bruto-1)*100)
+dt_s2_anual<-dt_s2 %>%
+  group_by(year) %>%
+  summarise(r_bruto_anual=round((prod(r_bruto)),4))%>%
+  mutate(r_neto_anual=(r_bruto_anual-1)*100)
+
+tab_s2_3 <- dt_s2_anual %>%
   summarise(
-    Media = mean(r_neto),
-    Error_Estandar = sd(r_neto)/sqrt(n()),
-    Desviacion_Estandar = sd(r_neto),
-    Minimo = min(r_neto),
-    Maximo = max(r_neto),
-    Numero_Datos = n()
+    Media = round(mean(r_neto_anual, na.rm = TRUE),2),
+    Error_Estandar = round(sd(r_neto_anual, na.rm = TRUE)/sqrt(sum(!is.na(r_neto_anual))),2),
+    Desviacion_Estandar = round(sd(r_neto_anual, na.rm = TRUE),2),
+    Minimo = min(r_neto_anual, na.rm = TRUE),
+    Maximo = max(r_neto_anual, na.rm = TRUE),
+    Numero_Datos = sum(!is.na(r_neto_anual))
   )
 
 doc <- body_add_par(doc, 
@@ -74,17 +86,21 @@ print(doc, target = "tabla_documento.docx")
 #------------------------------------------------------------------------------#
 dt_s3$p_t_1<-dt_s3$prc
 dt_s3<-dt_s3 %>%
-  mutate(p_t_1 = ifelse(datevar>431,lag(prc, n = 1),prc)) %>%
-  mutate(r_bruto=(prc+divamt)/p_t_1)%>%
-  mutate(r_neto=r_bruto-1)
-tab_s3_3 <- dt_s3 %>%
+  mutate(p_t_1 = lag(prc, n = 1)) %>%
+  mutate(r_bruto=round((prc+divamt)/p_t_1,4)) %>%
+  mutate(r_neto=(r_bruto-1)*100)
+dt_s3_anual<-dt_s3 %>%
+  group_by(year) %>%
+  summarise(r_bruto_anual=round((prod(r_bruto)),4))%>%
+  mutate(r_neto_anual=(r_bruto_anual-1)*100)
+tab_s3_3 <- dt_s3_anual %>%
   summarise(
-    Media = mean(r_neto),
-    Error_Estandar = sd(r_neto)/sqrt(n()),
-    Desviacion_Estandar = sd(r_neto),
-    Minimo = min(r_neto),
-    Maximo = max(r_neto),
-    Numero_Datos = n()
+    Media = round(mean(r_neto_anual, na.rm = TRUE),2),
+    Error_Estandar = round(sd(r_neto_anual, na.rm = TRUE)/sqrt(sum(!is.na(r_neto_anual))),2),
+    Desviacion_Estandar = round(sd(r_neto_anual, na.rm = TRUE),2),
+    Minimo = min(r_neto_anual, na.rm = TRUE),
+    Maximo = max(r_neto_anual, na.rm = TRUE),
+    Numero_Datos = sum(!is.na(r_neto_anual))
   )
 
 doc <- body_add_par(doc, 
@@ -95,13 +111,15 @@ doc <- body_add_flextable(doc, value = tabla3)
 print(doc, target = "tabla_documento.docx")
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
 #PARTE 4
 #Realizar test de hipotesis media 0
-t_test_s1 <- t.test(dt_s1$r_neto, mu = 0)
-t_test_s2 <- t.test(dt_s2$r_neto, mu = 0)
-t_test_s3 <- t.test(dt_s3$r_neto, mu = 0)
+t_test_s1 <- t.test(dt_s1_anual$r_neto_anual, mu = 0)
+t_test_s2 <- t.test(dt_s2_anual$r_neto_anual, mu = 0)
+t_test_s3 <- t.test(dt_s3_anual$r_neto_anual, mu = 0)
 test_hipotesis<-data.frame(
-  valor_p=c(t_test_s1$p.value,t_test_s2$p.value,t_test_s3$p.value)
+  valor_p=round(c(t_test_s1$p.value,t_test_s2$p.value,t_test_s3$p.value),2)
   )
 test_hipotesis<-test_hipotesis%>%
   mutate(alfa_10 = ifelse(valor_p<=0.1,"Se rechaza H0 con 10% de significancia","No se rechaza H0"))%>%
@@ -116,60 +134,72 @@ print(doc, target = "tabla_documento.docx")
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
 #PARTE 5
 #calculamos el retorno logaritmico como r_t=log(1+Rt), es decir logaritmo del 
 #retorno bruto
 dt_s1<-dt_s1 %>%
-  mutate(r_t = log(r_bruto))
-tab_s1_log_5 <- dt_s1 %>%
+  mutate(r_t = round(log(r_bruto),4)*100)
+dt_s1_anual_log<-dt_s1 %>%
+  group_by(year) %>%
+  summarise(r_log_anual=round((sum(r_t)),4))
+tab_s1_log<- dt_s1_anual_log %>%
   summarise(
-    Media = mean(r_t),
-    Error_Estandar = sd(r_t)/sqrt(n()),
-    Desviacion_Estandar = sd(r_t),
-    Minimo = min(r_t),
-    Maximo = max(r_t),
-    Numero_Datos = n()
+    Media = round(mean(r_log_anual, na.rm = TRUE),2),
+    Error_Estandar = round(sd(r_log_anual, na.rm = TRUE)/sqrt(sum(!is.na(r_log_anual))),2),
+    Desviacion_Estandar = round(sd(r_log_anual, na.rm = TRUE),2),
+    Minimo = min(r_log_anual, na.rm = TRUE),
+    Maximo = max(r_log_anual, na.rm = TRUE),
+    Numero_Datos = sum(!is.na(r_log_anual))
   )
+
 doc <- body_add_par(doc, 
                     value = "Tabla 5: Retorno logarítmico acción 1 ", 
                     style = "heading 1")
-tabla5 <- qflextable(tab_s1_log_5)
+tabla5 <- qflextable(tab_s1_log)
 doc <- body_add_flextable(doc, value = tabla5)
 print(doc, target = "tabla_documento.docx")
 #------------------------------------------------------------------------------#
 dt_s2<-dt_s2 %>%
-  mutate(r_t = log(r_bruto))
-tab_s2_log_5 <- dt_s2 %>%
+  mutate(r_t = round(log(r_bruto),4)*100)
+dt_s2_anual_log<-dt_s2 %>%
+  group_by(year) %>%
+  summarise(r_log_anual=round((sum(r_t)),4))
+tab_s2_log<- dt_s2_anual_log %>%
   summarise(
-    Media = mean(r_t),
-    Error_Estandar = sd(r_t)/sqrt(n()),
-    Desviacion_Estandar = sd(r_t),
-    Minimo = min(r_t),
-    Maximo = max(r_t),
-    Numero_Datos = n()
+    Media = round(mean(r_log_anual, na.rm = TRUE),2),
+    Error_Estandar = round(sd(r_log_anual, na.rm = TRUE)/sqrt(sum(!is.na(r_log_anual))),2),
+    Desviacion_Estandar = round(sd(r_log_anual, na.rm = TRUE),2),
+    Minimo = min(r_log_anual, na.rm = TRUE),
+    Maximo = max(r_log_anual, na.rm = TRUE),
+    Numero_Datos = sum(!is.na(r_log_anual))
   )
 doc <- body_add_par(doc, 
                     value = "Tabla 6: Retorno logarítmico acción 2 ", 
                     style = "heading 1")
-tabla6 <- qflextable(tab_s2_log_5)
+tabla6 <- qflextable(tab_s2_log)
 doc <- body_add_flextable(doc, value = tabla6)
 print(doc, target = "tabla_documento.docx")
 #------------------------------------------------------------------------------#
 dt_s3<-dt_s3 %>%
-  mutate(r_t = log(r_bruto))
-tab_s3_log_5 <- dt_s3 %>%
+  mutate(r_t = round(log(r_bruto),4)*100)
+dt_s3_anual_log<-dt_s3 %>%
+  group_by(year) %>%
+  summarise(r_log_anual=round((sum(r_t)),4))
+tab_s3_log<- dt_s3_anual_log %>%
   summarise(
-    Media = mean(r_t),
-    Error_Estandar = sd(r_t)/sqrt(n()),
-    Desviacion_Estandar = sd(r_t),
-    Minimo = min(r_t),
-    Maximo = max(r_t),
-    Numero_Datos = n()
+    Media = round(mean(r_log_anual, na.rm = TRUE),2),
+    Error_Estandar = round(sd(r_log_anual, na.rm = TRUE)/sqrt(sum(!is.na(r_log_anual))),2),
+    Desviacion_Estandar = round(sd(r_log_anual, na.rm = TRUE),2),
+    Minimo = min(r_log_anual, na.rm = TRUE),
+    Maximo = max(r_log_anual, na.rm = TRUE),
+    Numero_Datos = sum(!is.na(r_log_anual))
   )
 doc <- body_add_par(doc, 
                     value = "Tabla 7: Retorno logarítmico acción 3 ", 
                     style = "heading 1")
-tabla7 <- qflextable(tab_s3_log_5)
+tabla7 <- qflextable(tab_s3_log)
 doc <- body_add_flextable(doc, value = tabla7)
 print(doc, target = "tabla_documento.docx")
 #------------------------------------------------------------------------------#
@@ -178,20 +208,26 @@ print(doc, target = "tabla_documento.docx")
 #primero calculamos la inflacion bruta mensual
 dt_cpi<-dt_cpi %>%
   mutate(ipc_t_1 = ifelse(year>1995,lag(cpi, n = 1),cpi)) %>%
-  mutate(inflacion_bruta=cpi/ipc_t_1)
+  mutate(inflacion_bruta=round((cpi/ipc_t_1),4))
 #luego agregamos a la base de datos de cada accion y calculamos el retorno bruto real y neto real
 dt_s1<-dt_s1 %>%
   mutate(inflacion_bruta=dt_cpi$inflacion_bruta)%>%
-  mutate(r_real_bruto=r_bruto/inflacion_bruta)%>%
-  mutate(r_real_neto=r_real_bruto-1)
-tab_s1_real <- dt_s1 %>%
+  mutate(r_real_bruto=round(r_bruto/inflacion_bruta,4))%>%
+  mutate(r_real_neto=(r_real_bruto-1)*100)
+dt_s1_anual_real<-dt_s1 %>%
+  group_by(year) %>%
+  summarise(r_real_bruto_anual=round((prod(r_real_bruto)),4),
+            inflacion_anual=(round((prod(inflacion_bruta)),4)-1)*100)%>%
+  mutate(r_real_neto_anual=(r_real_bruto_anual-1)*100)
+  
+tab_s1_real <- dt_s1_anual_real %>%
   summarise(
-    Media = mean(r_real_neto),
-    Error_Estandar = sd(r_real_neto)/sqrt(n()),
-    Desviacion_Estandar = sd(r_real_neto),
-    Minimo = min(r_real_neto),
-    Maximo = max(r_real_neto),
-    Numero_Datos = n()
+    Media = round(mean(r_real_neto_anual, na.rm = TRUE),2),
+    Error_Estandar = round(sd(r_real_neto_anual, na.rm = TRUE)/sqrt(sum(!is.na(r_real_neto_anual))),2),
+    Desviacion_Estandar = round(sd(r_real_neto_anual, na.rm = TRUE),2),
+    Minimo = min(r_real_neto_anual, na.rm = TRUE),
+    Maximo = max(r_real_neto_anual, na.rm = TRUE),
+    Numero_Datos = sum(!is.na(r_real_neto_anual))
   )
 doc <- body_add_par(doc, 
                     value = "Tabla 8: Retorno real acción 1 ", 
@@ -202,16 +238,22 @@ print(doc, target = "tabla_documento.docx")
 #------------------------------------------------------------------------------#
 dt_s2<-dt_s2 %>%
   mutate(inflacion_bruta=dt_cpi$inflacion_bruta)%>%
-  mutate(r_real_bruto=r_bruto/inflacion_bruta)%>%
-  mutate(r_real_neto=r_real_bruto-1)
-tab_s2_real <- dt_s2 %>%
+  mutate(r_real_bruto=round(r_bruto/inflacion_bruta,4))%>%
+  mutate(r_real_neto=(r_real_bruto-1)*100)
+dt_s2_anual_real<-dt_s2 %>%
+  group_by(year) %>%
+  summarise(r_real_bruto_anual=round((prod(r_real_bruto)),4),
+            inflacion_anual=(round((prod(inflacion_bruta)),4)-1)*100)%>%
+  mutate(r_real_neto_anual=(r_real_bruto_anual-1)*100)
+
+tab_s2_real <- dt_s2_anual_real %>%
   summarise(
-    Media = mean(r_real_neto),
-    Error_Estandar = sd(r_real_neto)/sqrt(n()),
-    Desviacion_Estandar = sd(r_real_neto),
-    Minimo = min(r_real_neto),
-    Maximo = max(r_real_neto),
-    Numero_Datos = n()
+    Media = round(mean(r_real_neto_anual, na.rm = TRUE),2),
+    Error_Estandar = round(sd(r_real_neto_anual, na.rm = TRUE)/sqrt(sum(!is.na(r_real_neto_anual))),2),
+    Desviacion_Estandar = round(sd(r_real_neto_anual, na.rm = TRUE),2),
+    Minimo = min(r_real_neto_anual, na.rm = TRUE),
+    Maximo = max(r_real_neto_anual, na.rm = TRUE),
+    Numero_Datos = sum(!is.na(r_real_neto_anual))
   )
 doc <- body_add_par(doc, 
                     value = "Tabla 9: Retorno real acción 2 ", 
@@ -222,16 +264,22 @@ print(doc, target = "tabla_documento.docx")
 #------------------------------------------------------------------------------#
 dt_s3<-dt_s3 %>%
   mutate(inflacion_bruta=dt_cpi$inflacion_bruta)%>%
-  mutate(r_real_bruto=r_bruto/inflacion_bruta)%>%
-  mutate(r_real_neto=r_real_bruto-1)
-tab_s3_real <- dt_s3 %>%
+  mutate(r_real_bruto=round(r_bruto/inflacion_bruta,4))%>%
+  mutate(r_real_neto=(r_real_bruto-1)*100)
+dt_s3_anual_real<-dt_s3 %>%
+  group_by(year) %>%
+  summarise(r_real_bruto_anual=round((prod(r_real_bruto)),4),
+            inflacion_anual=(round((prod(inflacion_bruta)),4)-1)*100)%>%
+  mutate(r_real_neto_anual=(r_real_bruto_anual-1)*100)
+
+tab_s3_real <- dt_s3_anual_real %>%
   summarise(
-    Media = mean(r_real_neto),
-    Error_Estandar = sd(r_real_neto)/sqrt(n()),
-    Desviacion_Estandar = sd(r_real_neto),
-    Minimo = min(r_real_neto),
-    Maximo = max(r_real_neto),
-    Numero_Datos = n()
+    Media = round(mean(r_real_neto_anual, na.rm = TRUE),2),
+    Error_Estandar = round(sd(r_real_neto_anual, na.rm = TRUE)/sqrt(sum(!is.na(r_real_neto_anual))),2),
+    Desviacion_Estandar = round(sd(r_real_neto_anual, na.rm = TRUE),2),
+    Minimo = min(r_real_neto_anual, na.rm = TRUE),
+    Maximo = max(r_real_neto_anual, na.rm = TRUE),
+    Numero_Datos = sum(!is.na(r_real_neto_anual))
   )
 doc <- body_add_par(doc, 
                     value = "Tabla 10: Retorno real acción 3 ", 
