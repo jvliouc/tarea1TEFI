@@ -2,7 +2,8 @@
 library(readxl)
 library(dplyr)
 library(ggplot2)
-
+library(officer)
+library(flextable)
 dt_cpi <- read_excel("tarea1TEFI/cpi_2015.xlsx")
 dt  <- read_excel("tarea1TEFI/data_tarea_1.xlsx")
 #------------------------------------------------------------------------------#
@@ -41,6 +42,13 @@ tab_s1_3 <- dt_s1 %>%
     Maximo = max(r_neto),
     Numero_Datos = n()
   )
+doc <- read_docx()#abriendo el doc
+doc <- body_add_par(doc, 
+                    value = "Tabla 1: Retorno nominal acción 1 ", 
+                    style = "heading 1")
+tabla1 <- qflextable(tab_s1_3)
+doc <- body_add_flextable(doc, value = tabla1)
+print(doc, target = "tabla_documento.docx")
 #------------------------------------------------------------------------------#
 dt_s2$p_t_1<-dt_s2$prc
 dt_s2<-dt_s2 %>%
@@ -56,6 +64,13 @@ tab_s2_3 <- dt_s2 %>%
     Maximo = max(r_neto),
     Numero_Datos = n()
   )
+
+doc <- body_add_par(doc, 
+                    value = "Tabla 2: Retorno nominal acción 2 ", 
+                    style = "heading 1")
+tabla2 <- qflextable(tab_s2_3)
+doc <- body_add_flextable(doc, value = tabla2)
+print(doc, target = "tabla_documento.docx")
 #------------------------------------------------------------------------------#
 dt_s3$p_t_1<-dt_s3$prc
 dt_s3<-dt_s3 %>%
@@ -72,6 +87,12 @@ tab_s3_3 <- dt_s3 %>%
     Numero_Datos = n()
   )
 
+doc <- body_add_par(doc, 
+                    value = "Tabla 3: Retorno nominal acción 3 ", 
+                    style = "heading 1")
+tabla3 <- qflextable(tab_s3_3)
+doc <- body_add_flextable(doc, value = tabla3)
+print(doc, target = "tabla_documento.docx")
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 #PARTE 4
@@ -83,10 +104,15 @@ test_hipotesis<-data.frame(
   valor_p=c(t_test_s1$p.value,t_test_s2$p.value,t_test_s3$p.value)
   )
 test_hipotesis<-test_hipotesis%>%
-  mutate(alfa_10 = ifelse(valor_p<=0.1,"Se rechaza H0 (media=0) con 10% de significancia","No se rechaza H0"))%>%
-  mutate(alfa_05 = ifelse(valor_p<=0.05,"Se rechaza H0 (media=0) con 5% de significancia","No se rechaza H0"))%>%
-  mutate(alfa_01 = ifelse(valor_p<=0.01,"Se rechaza H0 (media=0) con 1% de significancia","No se rechaza H0"))
-
+  mutate(alfa_10 = ifelse(valor_p<=0.1,"Se rechaza H0 con 10% de significancia","No se rechaza H0"))%>%
+  mutate(alfa_05 = ifelse(valor_p<=0.05,"Se rechaza H0 con 5% de significancia","No se rechaza H0"))%>%
+  mutate(alfa_01 = ifelse(valor_p<=0.01,"Se rechaza H0 con 1% de significancia","No se rechaza H0"))
+doc <- body_add_par(doc, 
+                    value = "Tabla 4: Resultado test de hipótesis H0: media==0", 
+                    style = "heading 1")
+tabla4 <- qflextable(test_hipotesis)
+doc <- body_add_flextable(doc, value = tabla4)
+print(doc, target = "tabla_documento.docx")
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
@@ -104,6 +130,12 @@ tab_s1_log_5 <- dt_s1 %>%
     Maximo = max(r_t),
     Numero_Datos = n()
   )
+doc <- body_add_par(doc, 
+                    value = "Tabla 5: Retorno logarítmico acción 1 ", 
+                    style = "heading 1")
+tabla5 <- qflextable(tab_s1_log_5)
+doc <- body_add_flextable(doc, value = tabla5)
+print(doc, target = "tabla_documento.docx")
 #------------------------------------------------------------------------------#
 dt_s2<-dt_s2 %>%
   mutate(r_t = log(r_bruto))
@@ -116,6 +148,12 @@ tab_s2_log_5 <- dt_s2 %>%
     Maximo = max(r_t),
     Numero_Datos = n()
   )
+doc <- body_add_par(doc, 
+                    value = "Tabla 6: Retorno logarítmico acción 2 ", 
+                    style = "heading 1")
+tabla6 <- qflextable(tab_s2_log_5)
+doc <- body_add_flextable(doc, value = tabla6)
+print(doc, target = "tabla_documento.docx")
 #------------------------------------------------------------------------------#
 dt_s3<-dt_s3 %>%
   mutate(r_t = log(r_bruto))
@@ -128,6 +166,12 @@ tab_s3_log_5 <- dt_s3 %>%
     Maximo = max(r_t),
     Numero_Datos = n()
   )
+doc <- body_add_par(doc, 
+                    value = "Tabla 7: Retorno logarítmico acción 3 ", 
+                    style = "heading 1")
+tabla7 <- qflextable(tab_s3_log_5)
+doc <- body_add_flextable(doc, value = tabla7)
+print(doc, target = "tabla_documento.docx")
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 #PARTE 6
@@ -149,6 +193,12 @@ tab_s1_real <- dt_s1 %>%
     Maximo = max(r_real_neto),
     Numero_Datos = n()
   )
+doc <- body_add_par(doc, 
+                    value = "Tabla 8: Retorno real acción 1 ", 
+                    style = "heading 1")
+tabla8 <- qflextable(tab_s1_real)
+doc <- body_add_flextable(doc, value = tabla8)
+print(doc, target = "tabla_documento.docx")
 #------------------------------------------------------------------------------#
 dt_s2<-dt_s2 %>%
   mutate(inflacion_bruta=dt_cpi$inflacion_bruta)%>%
@@ -163,12 +213,18 @@ tab_s2_real <- dt_s2 %>%
     Maximo = max(r_real_neto),
     Numero_Datos = n()
   )
+doc <- body_add_par(doc, 
+                    value = "Tabla 9: Retorno real acción 2 ", 
+                    style = "heading 1")
+tabla9 <- qflextable(tab_s2_real)
+doc <- body_add_flextable(doc, value = tabla9)
+print(doc, target = "tabla_documento.docx")
 #------------------------------------------------------------------------------#
 dt_s3<-dt_s3 %>%
   mutate(inflacion_bruta=dt_cpi$inflacion_bruta)%>%
   mutate(r_real_bruto=r_bruto/inflacion_bruta)%>%
   mutate(r_real_neto=r_real_bruto-1)
-tab_s2_real <- dt_s3 %>%
+tab_s3_real <- dt_s3 %>%
   summarise(
     Media = mean(r_real_neto),
     Error_Estandar = sd(r_real_neto)/sqrt(n()),
@@ -177,5 +233,11 @@ tab_s2_real <- dt_s3 %>%
     Maximo = max(r_real_neto),
     Numero_Datos = n()
   )
+doc <- body_add_par(doc, 
+                    value = "Tabla 10: Retorno real acción 3 ", 
+                    style = "heading 1")
+tabla10 <- qflextable(tab_s3_real)
+doc <- body_add_flextable(doc, value = tabla10)
+print(doc, target = "tabla_documento.docx")
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
