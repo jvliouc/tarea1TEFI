@@ -122,6 +122,8 @@ test_hipotesis<-data.frame(
   valor_p=round(c(t_test_s1$p.value,t_test_s2$p.value,t_test_s3$p.value),2)
   )
 test_hipotesis<-test_hipotesis%>%
+  mutate(accion = c("Alico","Amerco","Belden"))%>%
+  select(accion, everything())%>%
   mutate(alfa_10 = ifelse(valor_p<=0.1,"Se rechaza H0 con 10% de significancia","No se rechaza H0"))%>%
   mutate(alfa_05 = ifelse(valor_p<=0.05,"Se rechaza H0 con 5% de significancia","No se rechaza H0"))%>%
   mutate(alfa_01 = ifelse(valor_p<=0.01,"Se rechaza H0 con 1% de significancia","No se rechaza H0"))
@@ -289,4 +291,3 @@ doc <- body_add_flextable(doc, value = tabla10)
 print(doc, target = "tabla_documento.docx")
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
-#ñau
